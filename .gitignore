@@ -1,0 +1,11 @@
+.clasp.json
+.claspignore
+node_modules/
+npm-debug.log*
+*.log
+*.docx
+*.xlsx
+*.pdf
+*.zip
+.DS_Store
+Thumbs.db

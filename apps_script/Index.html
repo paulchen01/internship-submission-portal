@@ -1,0 +1,2388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>實習作業上傳與評分系統</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --text: #1f2933;
+      --muted: #667085;
+      --line: #d9dee7;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --danger: #b42318;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 72px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .account {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: right;
+      word-break: break-all;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 0 12px;
+    }
+
+    nav button,
+    .btn {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--text);
+      min-height: 38px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font: inherit;
+      white-space: nowrap;
+    }
+
+    nav button.active,
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn.primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn.ghost {
+      background: transparent;
+    }
+
+    .btn.danger {
+      color: var(--danger);
+      border-color: #f1b8b2;
+      background: #fff7f6;
+    }
+
+    main {
+      padding: 24px 0 56px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-3 { grid-column: span 3; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-9 { grid-column: span 9; }
+    .span-12 { grid-column: span 12; }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .notice {
+      border-left: 4px solid var(--primary);
+      padding: 14px 14px 14px 16px;
+      background: #f8fbff;
+      margin-bottom: 12px;
+      border-radius: 6px;
+    }
+
+    .notice.accent-blue {
+      border-left-color: #2563eb;
+      background: #f8fbff;
+    }
+
+    .notice.accent-green {
+      border-left-color: #0f766e;
+      background: #f0fdfa;
+    }
+
+    .notice.accent-amber {
+      border-left-color: #b45309;
+      background: #fff8eb;
+    }
+
+    .notice.accent-rose {
+      border-left-color: #b42318;
+      background: #fff7f6;
+    }
+
+    .notice.accent-slate {
+      border-left-color: #475467;
+      background: #f8fafc;
+    }
+
+    .notice.hidden {
+      opacity: 0.55;
+    }
+
+    .notice-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .notice-body {
+      white-space: pre-wrap;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      min-height: 40px;
+      padding: 8px 10px;
+      font: inherit;
+      background: #ffffff;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .visit-form {
+      padding: 22px;
+    }
+
+    .visit-form .visit-time-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .visit-history {
+      box-shadow: none;
+    }
+
+    .visit-history-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .visit-history-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    .visit-history-card .visit-date {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .visit-history-card .visit-meta {
+      display: grid;
+      gap: 4px;
+      margin: 8px 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f5f8;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #eef2ff;
+      color: #3730a3;
+      white-space: nowrap;
+    }
+
+    .status.returned {
+      background: #fff1f0;
+      color: var(--danger);
+    }
+
+    .status.done {
+      background: #ecfdf3;
+      color: var(--ok);
+    }
+
+    .status.pending {
+      background: #eef2ff;
+      color: #3730a3;
+    }
+
+    .status.missing {
+      background: #f2f4f7;
+      color: #475467;
+    }
+
+    .progress-legend,
+    .progress-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .progress-legend {
+      margin: 0 0 12px;
+    }
+
+    .progress-summary {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status-guide {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .status-guide-row {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .statbar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .message {
+      margin: 0 0 16px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--muted);
+      display: none;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: #fff7f6;
+      border-color: #f1b8b2;
+      color: var(--danger);
+    }
+
+    .message.success {
+      background: #ecfdf3;
+      border-color: #a7f3d0;
+      color: var(--ok);
+    }
+
+    .identity-banner {
+      margin: 0 0 16px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 12px 14px;
+      display: grid;
+      gap: 6px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .identity-banner.warn {
+      border-left-color: var(--danger);
+      background: #fffafa;
+    }
+
+    .identity-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .identity-line strong {
+      color: var(--ink);
+    }
+
+    .recover-form {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+      padding: 14px;
+    }
+
+    .records-reminder {
+      margin: 14px 0 0;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1e3a8a;
+      padding: 12px 14px;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      top: 88px;
+      z-index: 80;
+      max-width: min(360px, calc(100vw - 32px));
+      border: 1px solid #a7f3d0;
+      border-radius: 8px;
+      background: #ecfdf3;
+      color: var(--ok);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      font-weight: 700;
+      display: none;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .loading {
+      padding: 32px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .review-controls {
+      display: grid;
+      grid-template-columns: 90px minmax(220px, 1fr);
+      gap: 8px;
+      min-width: 520px;
+    }
+
+    .review-controls textarea {
+      min-height: 40px;
+      grid-column: 1 / -1;
+    }
+
+    .review-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      grid-column: 1 / -1;
+    }
+
+    .roster-table input {
+      min-width: 110px;
+    }
+
+    .roster-table input[data-field="agency"],
+    .roster-table input[data-field="agencyAddress"] {
+      min-width: 220px;
+    }
+
+    .announcement-body-input {
+      min-height: 320px;
+      line-height: 1.7;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .checkbox-row input {
+      width: auto;
+      min-height: auto;
+    }
+
+    @media (max-width: 860px) {
+      .wrap {
+        width: min(100vw - 20px, 1180px);
+      }
+
+      main {
+        padding: 14px 0 40px;
+      }
+
+      .grid,
+      .row,
+      .statbar {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .span-4,
+      .span-3,
+      .span-5,
+      .span-7,
+      .span-8,
+      .span-9,
+      .span-12 {
+        grid-column: 1;
+      }
+
+      .visit-form .visit-time-row {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px 0;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      nav {
+        padding-bottom: 10px;
+        gap: 6px;
+      }
+
+      nav button,
+      .btn {
+        min-height: 42px;
+        padding: 9px 12px;
+      }
+
+      .account {
+        text-align: left;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .notice {
+        padding: 12px 12px 12px 14px;
+      }
+
+      .notice-body {
+        font-size: 15px;
+      }
+
+      input,
+      select,
+      textarea {
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+      table {
+        min-width: 720px;
+      }
+
+      th,
+      td {
+        padding: 9px 8px;
+      }
+
+      .review-controls {
+        min-width: 420px;
+        grid-template-columns: 1fr;
+      }
+
+      .status-guide-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .wrap {
+        width: calc(100vw - 16px);
+      }
+
+      h1 {
+        font-size: 18px;
+      }
+
+      .muted,
+      .account {
+        font-size: 13px;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      .toast {
+        right: 8px;
+        left: 8px;
+        top: 78px;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div>
+          <h1 id="courseTitle">實習作業上傳與評分系統</h1>
+          <div class="muted">學生上傳作業，老師檢閱、退件與勾選完成。<span id="versionInfo"></span></div>
+        </div>
+        <div class="account" id="accountInfo">載入登入資訊中</div>
+      </div>
+      <nav id="tabs"></nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="message" class="message"></div>
+    <div id="app" class="loading">正在載入系統資料</div>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const state = {
+      ready: false,
+      currentTab: 'announcements',
+      data: null,
+      editingAnnouncement: null,
+      loaded: {
+        mySubmissions: false,
+        myVisits: false,
+        teacherData: false,
+        visitAdminData: false,
+        rosterData: false
+      },
+      loading: {
+        mySubmissions: false,
+        myVisits: false,
+        teacherData: false,
+        visitAdminData: false,
+        rosterData: false
+      },
+      version: 'v31'
+    };
+
+    const uploadMemoryKey = 'internshipUploadProfile:v1';
+
+    const tabList = [
+      { id: 'announcements', label: '公佈欄' },
+      { id: 'upload', label: '上傳作業' },
+      { id: 'visit', label: '訪視安排' },
+      { id: 'records', label: '我的紀錄' },
+      { id: 'teacher', label: '老師後台', teacherOnly: true },
+      { id: 'visitAdmin', label: '訪視後台', teacherOnly: true },
+      { id: 'rosterAdmin', label: '名單管理', teacherOnly: true },
+      { id: 'announcementAdmin', label: '公告管理', teacherOnly: true }
+    ];
+
+    document.addEventListener('DOMContentLoaded', bootstrap);
+
+    function bootstrap() {
+      state.ready = true;
+      state.data = fallbackData();
+      renderShell();
+      render();
+
+      const loadTimer = setTimeout(() => {
+        showError('後端資料載入超過10秒。你仍可先看首頁；若要上傳或進老師後台，請重新整理，或回 Apps Script 執行 runInitialSetup。');
+      }, 10000);
+
+      google.script.run
+        .withSuccessHandler(data => {
+          clearTimeout(loadTimer);
+          state.ready = true;
+          state.data = data;
+          clearMessage();
+          renderShell();
+          render();
+        })
+        .withFailureHandler(error => {
+          clearTimeout(loadTimer);
+          showError(error.message || String(error));
+          const app = document.getElementById('app');
+          app.className = '';
+          app.innerHTML = `
+            <section class="panel">
+              <h2>系統載入失敗</h2>
+              <p class="muted">${escapeHtml(error.message || String(error))}</p>
+              <p>若這是第一次開啟，請老師先到 Apps Script 編輯器執行 <strong>runInitialSetup</strong> 並完成授權。</p>
+            </section>
+          `;
+        })
+        .getInitialData();
+    }
+
+    function fallbackData() {
+      return {
+        courseTitle: '實習作業上傳與評分系統',
+        userEmail: '',
+        userKey: '',
+        isTeacher: false,
+        assignments: [
+          { type: '實習計畫書', label: '實習計畫書', requiresWeek: false, description: '請上傳完整實習計畫書。' },
+          { type: '週誌', label: '8週週誌', requiresWeek: true, weeks: [1, 2, 3, 4, 5, 6, 7, 8], description: '請依週次上傳週誌。退件後請重新上傳修正版。' },
+          { type: '讀書心得報告', label: '讀書心得報告', requiresWeek: false, description: '請上傳指定讀物或自選讀物的心得報告。' },
+          { type: '個案分析報告', label: '個案分析報告', requiresWeek: false, description: '請上傳個案分析報告。' },
+          { type: '實習總報告', label: '實習總報告 PDF', requiresWeek: false, description: '完成實習後，請上傳完整 PDF 實習總報告。' },
+          { type: '實習照片1', label: '實習照片1', requiresWeek: false, description: '請上傳第1張學生實習照片。' },
+          { type: '實習照片2', label: '實習照片2', requiresWeek: false, description: '請上傳第2張學生實習照片。' }
+        ],
+        announcements: [
+          {
+            announcementId: 'fallback',
+            updatedAt: new Date().toISOString(),
+            title: '實習作業上傳公告',
+            body: '請依規定上傳實習計畫書、8週週誌、讀書心得報告與個案分析報告。週誌若被退件，請依老師評語修正後重新上傳。',
+            pinned: true,
+            visible: true,
+            sortOrder: 100
+          }
+        ],
+        myStudent: null,
+        mySubmissions: [],
+        myVisits: [],
+        teacherData: null,
+        visitAdminData: null,
+        rosterData: null
+      };
+    }
+
+    function renderShell() {
+      document.getElementById('courseTitle').textContent = state.data.courseTitle;
+      document.getElementById('versionInfo').textContent = ` ${state.version}`;
+      document.getElementById('accountInfo').textContent = state.data.userEmail
+        ? `登入帳號：${state.data.userEmail}${state.data.isTeacher ? '，老師權限' : ''}`
+        : '已登入 Google 帳號，系統以登入識別碼保護個人資料';
+
+      const tabs = document.getElementById('tabs');
+      tabs.innerHTML = '';
+      tabList
+        .filter(tab => !tab.teacherOnly || state.data.isTeacher)
+        .forEach(tab => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = state.currentTab === tab.id ? 'active' : '';
+          button.textContent = tab.label;
+          button.addEventListener('click', () => {
+            state.currentTab = tab.id;
+            renderShell();
+            render();
+            loadDataForCurrentTab();
+          });
+          tabs.appendChild(button);
+        });
+    }
+
+    function render() {
+      if (!state.ready) return;
+      const app = document.getElementById('app');
+      app.className = '';
+      let content = '';
+      if (state.currentTab === 'announcements') content = renderAnnouncements();
+      if (state.currentTab === 'upload') content = renderUpload();
+      if (state.currentTab === 'visit') content = renderVisit();
+      if (state.currentTab === 'records') content = renderRecords(state.data.mySubmissions);
+      if (state.currentTab === 'teacher') content = renderTeacher();
+      if (state.currentTab === 'visitAdmin') content = renderVisitAdmin();
+      if (state.currentTab === 'rosterAdmin') content = renderRosterAdmin();
+      if (state.currentTab === 'announcementAdmin') content = renderAnnouncementAdmin();
+      app.innerHTML = `${renderIdentityBanner()}${content}`;
+      bindEvents();
+    }
+
+    function renderIdentityBanner() {
+      const student = state.data.myStudent || null;
+      const recognized = Boolean(student && student.studentName);
+      const studentText = state.data.isTeacher
+        ? '老師端登入'
+        : recognized
+          ? `已辨識學生：${escapeHtml(student.studentName)}（${escapeHtml(student.studentId || '')}）`
+          : '系統尚未辨識你的學生身分';
+      const accountText = state.data.userEmail
+        ? `登入帳號：${escapeHtml(state.data.userEmail)}`
+        : '登入帳號：Google 已登入，但 Google 未提供 Gmail；系統會用登入識別碼保護資料';
+      const submissionStatus = state.loading.mySubmissions
+        ? '上傳紀錄：讀取中'
+        : state.loaded.mySubmissions
+          ? `上傳紀錄：已讀取 ${escapeHtml((state.data.mySubmissions || []).length)} 筆`
+          : '上傳紀錄：尚未讀取';
+      const visitStatus = state.loading.myVisits
+        ? '訪視紀錄：讀取中'
+        : state.loaded.myVisits
+          ? `訪視紀錄：已讀取 ${escapeHtml((state.data.myVisits || []).length)} 筆`
+          : '訪視紀錄：尚未讀取';
+      const warning = !state.data.isTeacher && !recognized
+        ? '<div class="muted">若我的紀錄是空白，請先確認是否使用第一次上傳時同一個 Google 帳號登入；仍看不到時請回報老師協助檢查名單綁定。</div>'
+        : '';
+
+      return `
+        <section class="identity-banner ${!state.data.isTeacher && !recognized ? 'warn' : ''}" aria-label="登入與資料讀取狀態">
+          <div class="identity-line">
+            <strong>${studentText}</strong>
+            <span>${accountText}</span>
+          </div>
+          <div class="identity-line">
+            <span>${submissionStatus}</span>
+            <span>${visitStatus}</span>
+          </div>
+          ${warning}
+        </section>
+      `;
+    }
+
+    function loadDataForCurrentTab() {
+      if (state.currentTab === 'upload' || state.currentTab === 'records') {
+        loadMySubmissionsIfNeeded();
+      }
+      if (state.currentTab === 'visit') {
+        loadMyVisitsIfNeeded();
+      }
+      if (state.currentTab === 'teacher') {
+        loadTeacherDataIfNeeded();
+      }
+      if (state.currentTab === 'visitAdmin') {
+        loadVisitAdminDataIfNeeded();
+      }
+      if (state.currentTab === 'rosterAdmin') {
+        loadRosterDataIfNeeded();
+      }
+    }
+
+    function loadMySubmissionsIfNeeded() {
+      if (state.loaded.mySubmissions || state.loading.mySubmissions) return;
+      state.loading.mySubmissions = true;
+      callServer('getMySubmissions', null, result => {
+        state.data.mySubmissions = result || [];
+        state.loaded.mySubmissions = true;
+        state.loading.mySubmissions = false;
+        render();
+      }, () => {
+        state.loading.mySubmissions = false;
+      }, true);
+    }
+
+    function loadMyVisitsIfNeeded() {
+      if (state.loaded.myVisits || state.loading.myVisits) return;
+      state.loading.myVisits = true;
+      callServer('getMyVisits', null, result => {
+        state.data.myVisits = result || [];
+        state.loaded.myVisits = true;
+        state.loading.myVisits = false;
+        render();
+      }, () => {
+        state.loading.myVisits = false;
+      }, true);
+    }
+
+    function loadTeacherDataIfNeeded() {
+      if (state.loaded.teacherData || state.loading.teacherData || !state.data.isTeacher) return;
+      state.loading.teacherData = true;
+      callServer('getTeacherSubmissionData', {}, result => {
+        state.data.teacherData = result;
+        state.loaded.teacherData = true;
+        state.loading.teacherData = false;
+        render();
+      }, () => {
+        state.loading.teacherData = false;
+      }, true);
+    }
+
+    function loadVisitAdminDataIfNeeded() {
+      if (state.loaded.visitAdminData || state.loading.visitAdminData || !state.data.isTeacher) return;
+      state.loading.visitAdminData = true;
+      callServer('getVisitAdminData', {}, result => {
+        state.data.visitAdminData = result;
+        state.loaded.visitAdminData = true;
+        state.loading.visitAdminData = false;
+        render();
+      }, () => {
+        state.loading.visitAdminData = false;
+      }, true);
+    }
+
+    function loadRosterDataIfNeeded() {
+      if (state.loaded.rosterData || state.loading.rosterData || !state.data.isTeacher) return;
+      state.loading.rosterData = true;
+      callServer('getRosterData', {}, result => {
+        state.data.rosterData = result;
+        state.loaded.rosterData = true;
+        state.loading.rosterData = false;
+        render();
+      }, () => {
+        state.loading.rosterData = false;
+      }, true);
+    }
+
+    function invalidateTeacherDerivedData() {
+      state.loaded.teacherData = false;
+      state.loaded.visitAdminData = false;
+      state.data.teacherData = null;
+      state.data.visitAdminData = null;
+    }
+
+    function renderAnnouncements() {
+      const accents = ['accent-blue', 'accent-green', 'accent-amber', 'accent-rose', 'accent-slate'];
+      const notices = state.data.announcements.length
+        ? state.data.announcements.map((item, index) => renderNotice(item, accents[index % accents.length])).join('')
+        : '<div class="panel span-12">目前沒有公告。</div>';
+
+      return `
+        <section class="grid">
+          <div class="panel span-8">
+            <h2>公佈欄</h2>
+            ${notices}
+          </div>
+          <aside class="panel span-4">
+            <h2>上傳項目</h2>
+            ${state.data.assignments.map((item, index) => `
+              <div class="notice ${accents[index % accents.length]}">
+                <div class="notice-title">${escapeHtml(item.label)}</div>
+                <div class="muted">${escapeHtml(item.description)}</div>
+              </div>
+            `).join('')}
+          </aside>
+        </section>
+      `;
+    }
+
+    function renderNotice(item, accentClass) {
+      return `
+        <article class="notice ${accentClass || 'accent-blue'} ${item.visible ? '' : 'hidden'}">
+          <div class="notice-title">${item.pinned ? '置頂：' : ''}${escapeHtml(item.title)}</div>
+          <div class="notice-body">${escapeHtml(item.body || '')}</div>
+          <div class="muted">更新時間：${formatDate(item.updatedAt)}</div>
+        </article>
+      `;
+    }
+
+    function renderUpload() {
+      const student = state.data.myStudent || {};
+      const remembered = getUploadProfileMemory();
+      const profile = {
+        studentName: student.studentName || remembered.studentName || '',
+        studentId: student.studentId || remembered.studentId || '',
+        studentEmail: student.studentEmail || (state.data.isTeacher ? '' : state.data.userEmail || remembered.studentEmail || ''),
+        className: student.className || remembered.className || '',
+        agency: student.agency || remembered.agency || '',
+        agencySupervisor: remembered.agencySupervisor || ''
+      };
+      const locked = Boolean(state.data.myStudent);
+
+      return `
+        <section class="grid">
+          <form id="uploadForm" class="panel span-7">
+            <h2>上傳作業</h2>
+            <div class="row">
+              <div class="field">
+                <label for="studentName">姓名</label>
+                <input id="studentName" name="studentName" value="${escapeAttr(profile.studentName)}" ${locked ? 'readonly' : ''} required>
+              </div>
+              <div class="field">
+                <label for="studentId">學號</label>
+                <input id="studentId" name="studentId" value="${escapeAttr(profile.studentId)}" ${locked ? 'readonly' : ''} required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="studentEmail">Google 帳號（Gmail）</label>
+              <input id="studentEmail" name="studentEmail" type="email" value="${escapeAttr(profile.studentEmail)}" placeholder="請填寫自己的 Google/Gmail 帳號" required>
+              <div class="muted">請填寫你自己的 Google/Gmail 帳號，老師退件通知與回傳批改檔會使用這個信箱。</div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="className">班級</label>
+                <input id="className" name="className" value="${escapeAttr(profile.className)}" ${locked ? 'readonly' : ''}>
+              </div>
+              <div class="field">
+                <label for="agency">實習機構</label>
+                <input id="agency" name="agency" value="${escapeAttr(profile.agency)}" ${locked ? 'readonly' : ''}>
+              </div>
+            </div>
+            <div class="field">
+              <label for="agencySupervisor">實習機構督導</label>
+              <input id="agencySupervisor" name="agencySupervisor" value="${escapeAttr(profile.agencySupervisor)}" required>
+              <div class="muted">請填寫實習機構督導姓名。</div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="assignmentType">作業類型</label>
+                <select id="assignmentType" name="assignmentType" required>
+                  ${state.data.assignments.map(item => `<option value="${escapeAttr(item.type)}">${escapeHtml(item.label)}</option>`).join('')}
+                </select>
+              </div>
+              <div class="field" id="weekField">
+                <label for="week">週誌週次</label>
+                <select id="week" name="week">
+                  ${Array.from({ length: 8 }, (_, index) => `<option value="${index + 1}">第${index + 1}週</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="file">上傳檔案</label>
+              <input id="file" name="file" type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.jpg,.jpeg,.png,.heic,.webp" required>
+              <div class="muted">實習總報告請上傳 PDF；實習照片請上傳 JPG、PNG、HEIC 或 WEBP。單一檔案上限25MB。</div>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="submit">送出上傳</button>
+              <span class="muted" id="uploadHint"></span>
+            </div>
+          </form>
+          <aside class="panel span-5">
+            <h2>退件後如何重交</h2>
+            <p class="muted">若老師將週誌或其他作業標示為退件，請依評語修正，回到本頁選擇同一作業與週次重新上傳。系統會保留每一次上傳紀錄，方便老師比較版本。</p>
+            <p class="muted">第一次上傳時，系統會用你的學號與姓名比對老師名單，並綁定目前登入的 Google 帳號。綁定後只能用同一帳號查看自己的紀錄。</p>
+            ${renderRecords(state.data.mySubmissions.filter(item => item.status === '退件'), true)}
+          </aside>
+        </section>
+      `;
+    }
+
+    function renderVisit() {
+      const student = state.data.myStudent || {};
+      const remembered = getUploadProfileMemory();
+      const profile = {
+        studentName: student.studentName || remembered.studentName || '',
+        studentId: student.studentId || remembered.studentId || '',
+        studentEmail: student.studentEmail || (state.data.isTeacher ? '' : state.data.userEmail || remembered.studentEmail || ''),
+        className: student.className || remembered.className || '',
+        agency: student.agency || remembered.agency || '',
+        agencyAddress: student.agencyAddress || '',
+        agencySupervisor: student.supervisor || remembered.agencySupervisor || ''
+      };
+      const locked = Boolean(state.data.myStudent);
+
+      return `
+        <section class="grid">
+          <form id="visitForm" class="panel span-9 visit-form">
+            <h2>回報訪視安排</h2>
+            <p class="muted">請先和實習機構確認可訪視的日期、時間與地址後，再填寫送出。老師確認後會在紀錄中顯示。</p>
+            <div class="row visit-time-row">
+              <div class="field">
+                <label for="visitStudentName">姓名</label>
+                <input id="visitStudentName" name="studentName" value="${escapeAttr(profile.studentName)}" ${locked ? 'readonly' : ''} required>
+              </div>
+              <div class="field">
+                <label for="visitStudentId">學號</label>
+                <input id="visitStudentId" name="studentId" value="${escapeAttr(profile.studentId)}" ${locked ? 'readonly' : ''} required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="visitStudentEmail">Google 帳號（Gmail）</label>
+              <input id="visitStudentEmail" name="studentEmail" type="email" value="${escapeAttr(profile.studentEmail)}" placeholder="請填寫自己的 Google/Gmail 帳號" required>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="visitClassName">班級</label>
+                <input id="visitClassName" name="className" value="${escapeAttr(profile.className)}" ${locked ? 'readonly' : ''}>
+              </div>
+              <div class="field">
+                <label for="visitAgency">實習機構</label>
+                <input id="visitAgency" name="agency" value="${escapeAttr(profile.agency)}" ${locked ? 'readonly' : ''} required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="visitAgencyAddress">訪視地址</label>
+              <input id="visitAgencyAddress" name="agencyAddress" value="${escapeAttr(profile.agencyAddress)}" required>
+            </div>
+            <div class="field">
+              <label for="visitAgencySupervisor">實習機構督導姓名</label>
+              <input id="visitAgencySupervisor" name="agencySupervisor" value="${escapeAttr(profile.agencySupervisor)}" required>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="visitDate">訪視日期</label>
+                <input id="visitDate" name="visitDate" type="date" required>
+              </div>
+              <div class="field">
+                <label for="startTime">開始時間</label>
+                <input id="startTime" name="startTime" type="time" required>
+              </div>
+              <div class="field">
+                <label for="endTime">結束時間</label>
+                <input id="endTime" name="endTime" type="time" required>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="contactName">機構聯絡人</label>
+                <input id="contactName" name="contactName" placeholder="可留空">
+              </div>
+              <div class="field">
+                <label for="contactPhone">聯絡電話</label>
+                <input id="contactPhone" name="contactPhone" placeholder="可留空">
+              </div>
+            </div>
+            <div class="field">
+              <label for="studentNote">補充說明</label>
+              <textarea id="studentNote" name="studentNote" placeholder="例如交通方式、入口位置、機構提醒事項等"></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="submit">送出訪視安排</button>
+              <span class="muted" id="visitHint"></span>
+            </div>
+          </form>
+          <aside class="panel span-3 visit-history">
+            <h2>我的訪視回報紀錄</h2>
+            ${renderVisitRecords(state.data.myVisits || [])}
+          </aside>
+        </section>
+      `;
+    }
+
+    function renderVisitRecords(visits) {
+      if (!visits || !visits.length) {
+        return '<p class="muted">尚未回報訪視安排。</p>';
+      }
+      return `
+        <div class="visit-history-list">
+          ${visits.map(visit => `
+            <article class="visit-history-card">
+              <div class="visit-date">${escapeHtml(visit.visitDate || '未填日期')}</div>
+              <div class="muted">${escapeHtml(visit.startTime)}-${escapeHtml(visit.endTime)}</div>
+              <div class="visit-meta">
+                <div>${visitStatusPill(visit.status)}</div>
+                <div class="muted">${escapeHtml(visit.agency || '')}</div>
+                <div class="muted">${escapeHtml(formatDate(visit.timestamp))}</div>
+              </div>
+              ${visit.teacherNote ? `<div class="muted">老師備註：${escapeHtml(visit.teacherNote)}</div>` : ''}
+            </article>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderRecords(records, compact) {
+      if (!compact && state.loading.mySubmissions && !state.loaded.mySubmissions) {
+        return '<section class="panel"><h2>我的上傳紀錄</h2><p class="muted">正在載入上傳紀錄...</p></section>';
+      }
+      const rows = records && records.length
+        ? records.map(row => `
+          <tr>
+            <td>${formatDate(row.timestamp)}</td>
+            <td>${escapeHtml(row.assignmentType)}${row.week ? `<br><span class="muted">第${escapeHtml(row.week)}週</span>` : ''}</td>
+            <td>第${escapeHtml(row.attempt || 1)}次</td>
+            <td>${statusPill(row.status)}</td>
+            <td>${escapeHtml(row.teacherComment || '')}</td>
+            <td><a href="${escapeAttr(row.fileUrl)}" target="_blank" rel="noopener">開啟檔案</a></td>
+            <td>${row.reviewedFileUrl ? `<a href="${escapeAttr(row.reviewedFileUrl)}" target="_blank" rel="noopener">老師回傳檔</a>` : '<span class="muted">尚未回傳</span>'}</td>
+            <td>${row.status === '退件' ? `<button class="btn ghost resubmit" data-type="${escapeAttr(row.assignmentType)}" data-week="${escapeAttr(row.week || '')}">重交</button>` : ''}</td>
+          </tr>
+        `).join('')
+        : `<tr><td colspan="8" class="muted">${emptyRecordsMessage()}</td></tr>`;
+
+      const table = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>時間</th>
+                <th>作業</th>
+                <th>版本</th>
+                <th>狀態</th>
+                <th>老師評語／退件原因</th>
+                <th>檔案</th>
+                <th>老師回傳</th>
+                <th>動作</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+
+      if (compact) return table;
+      return `
+        ${renderStudentProgress(records || [])}
+        <section class="panel">
+          <h2>我的上傳紀錄</h2>
+          ${table}
+          <p class="records-reminder" data-check="records-refresh-reminder">每次上傳完要到「我的紀錄」下方再重新點取「重新辨識並讀取紀錄」才會更新。</p>
+          ${renderRecordStatusGuide()}
+          ${renderRecoverIdentityForm(records || [])}
+        </section>
+      `;
+    }
+
+    function renderRecoverIdentityForm(records) {
+      if (state.data.isTeacher) return '';
+      const student = state.data.myStudent || null;
+      const shouldShow = !student || !student.studentName || (state.loaded.mySubmissions && !(records || []).length);
+      if (!shouldShow) return '';
+      const remembered = getUploadProfileMemory();
+      return `
+        <form id="recoverIdentityForm" class="recover-form">
+          <h3>看不到紀錄？重新辨識身分</h3>
+          <p class="muted">若老師後台看得到你的繳交紀錄，但這裡沒有顯示，請填寫姓名、學號與當初登記的 Gmail。三項都符合老師名單後，系統會重新綁定目前登入的 Google 帳號並讀回紀錄。</p>
+          <div class="row">
+            <div class="field">
+              <label for="recoverStudentName">姓名</label>
+              <input id="recoverStudentName" name="studentName" value="${escapeAttr(student && student.studentName ? student.studentName : remembered.studentName || '')}" required>
+            </div>
+            <div class="field">
+              <label for="recoverStudentId">學號</label>
+              <input id="recoverStudentId" name="studentId" value="${escapeAttr(student && student.studentId ? student.studentId : remembered.studentId || '')}" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="recoverStudentEmail">Gmail</label>
+            <input id="recoverStudentEmail" name="studentEmail" type="email" value="${escapeAttr(student && student.studentEmail ? student.studentEmail : remembered.studentEmail || state.data.userEmail || '')}" required>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="submit">重新辨識並讀取紀錄</button>
+            <span class="muted" id="recoverHint"></span>
+          </div>
+        </form>
+      `;
+    }
+
+    function emptyRecordsMessage() {
+      const student = state.data.myStudent || null;
+      if (!student || !student.studentName) {
+        return '目前沒有紀錄。系統尚未辨識你的學生身分，請確認是否使用第一次上傳時同一個 Google 帳號登入；若仍看不到，請聯絡老師檢查名單綁定。';
+      }
+      if (state.loaded.mySubmissions) {
+        return `目前沒有紀錄。已辨識為 ${student.studentName}（${student.studentId || ''}），但目前沒有讀到繳交紀錄；請確認是否已完成上傳，或請老師協助檢查試算表資料。`;
+      }
+      return '目前沒有紀錄，資料仍在讀取中，請稍候或重新整理。';
+    }
+
+    function renderRecordStatusGuide() {
+      return `
+        <div class="status-guide" aria-label="狀態說明">
+          <div class="status-guide-row">
+            <span class="status pending">已繳交</span>
+            <span class="muted">系統已收到作業，正在等待老師檢閱；這個狀態還不代表已完成。</span>
+          </div>
+          <div class="status-guide-row">
+            <span class="status done">已完成</span>
+            <span class="muted">老師已確認這份作業完成，該項目才算通過。</span>
+          </div>
+          <div class="status-guide-row">
+            <span class="status returned">退件</span>
+            <span class="muted">老師要求修正，視同尚未完成；請依「老師評語／退件原因」修改後重新上傳。</span>
+          </div>
+          <div class="status-guide-row">
+            <span class="status missing">老師回傳</span>
+            <span class="muted">若老師有上傳批改後檔案，會在「老師回傳」欄出現連結；顯示「尚未回傳」表示目前沒有回傳檔。</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStudentProgress(records) {
+      const progress = buildStudentProgress(records);
+      const completed = progress.filter(item => item.status === '已完成').length;
+      const submitted = progress.filter(item => item.status === '已繳交').length;
+      const returned = progress.filter(item => item.status === '退件').length;
+      const missing = progress.filter(item => item.status === '未繳交').length;
+      return `
+        <section class="panel">
+          <h2>我的繳交進度</h2>
+          <div class="progress-legend">
+            <span class="status done">已完成</span>
+            <span class="status pending">已繳交待確認</span>
+            <span class="status returned">退件需補交</span>
+            <span class="status missing">未繳交</span>
+          </div>
+          <p class="muted">完成${escapeHtml(completed)}，待老師確認${escapeHtml(submitted)}，退件需補交${escapeHtml(returned)}，未繳交${escapeHtml(missing)}。</p>
+          <div class="progress-items">
+            ${progress.map(item => `<span class="status ${progressStatusClass(item.status)}" title="${escapeAttr(item.status)}">${escapeHtml(item.label)}</span>`).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function buildStudentProgress(records) {
+      const items = requiredProgressItems();
+      const latest = {};
+      (records || []).forEach(row => {
+        const key = progressItemKey(row.assignmentType, row.week);
+        const current = latest[key];
+        const rowAttempt = Number(row.attempt || 0);
+        const currentAttempt = current ? Number(current.attempt || 0) : -1;
+        const rowTime = new Date(row.timestamp).getTime() || 0;
+        const currentTime = current ? new Date(current.timestamp).getTime() || 0 : -1;
+        if (!current || rowAttempt > currentAttempt || rowTime >= currentTime) {
+          latest[key] = row;
+        }
+      });
+      return items.map(item => ({
+        label: item.label,
+        status: latest[item.key] ? latest[item.key].status || '已繳交' : '未繳交'
+      }));
+    }
+
+    function requiredProgressItems() {
+      const items = [];
+      (state.data.assignments || []).forEach(assignment => {
+        if (assignment.requiresWeek) {
+          (assignment.weeks || []).forEach(week => {
+            items.push({ key: progressItemKey(assignment.type, week), label: `第${week}週${assignment.type}` });
+          });
+        } else {
+          items.push({ key: progressItemKey(assignment.type, ''), label: assignment.label || assignment.type });
+        }
+      });
+      return items;
+    }
+
+    function progressItemKey(type, week) {
+      return `${type}::${week || ''}`;
+    }
+
+    function renderTeacher() {
+      const data = state.data.teacherData;
+      if (!data) {
+        return '<section class="panel"><h2>老師後台</h2><p class="muted">正在載入老師後台資料...</p></section>';
+      }
+      return `
+        <section>
+          <div class="statbar">
+            <div class="stat"><span class="stat-number">${data.summary.studentCount}</span><span class="muted">學生數</span></div>
+            <div class="stat"><span class="stat-number">${data.summary.total}</span><span class="muted">上傳總件數</span></div>
+            <div class="stat"><span class="stat-number">${data.summary.returned}</span><span class="muted">退件中</span></div>
+            <div class="stat"><span class="stat-number">${data.summary.completed}</span><span class="muted">已完成</span></div>
+          </div>
+          <div class="grid">
+            <div class="panel span-12">
+              <h2>收件與評分</h2>
+              <form id="teacherFilter" class="row">
+                <div class="field">
+                  <label for="filterStudent">選擇學生</label>
+                  <select id="filterStudent" name="studentKey">
+                    <option value="">全部學生</option>
+                    ${(data.students || []).map(student => `<option value="${escapeAttr(student.studentKey)}">${escapeHtml(student.studentName)}（${escapeHtml(student.studentId)}）</option>`).join('')}
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="filterQuery">搜尋學生、學號、機構</label>
+                  <input id="filterQuery" name="query">
+                </div>
+                <div class="field">
+                  <label for="filterAssignment">作業類型</label>
+                  <select id="filterAssignment" name="assignmentType">
+                    <option value="">全部</option>
+                    ${state.data.assignments.map(item => `<option value="${escapeAttr(item.type)}">${escapeHtml(item.label)}</option>`).join('')}
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="filterStatus">狀態</label>
+                  <select id="filterStatus" name="status">
+                    <option value="">全部</option>
+                    <option>已繳交</option>
+                    <option>退件</option>
+                    <option>已完成</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>&nbsp;</label>
+                  <button class="btn" type="submit">套用篩選</button>
+                </div>
+              </form>
+              ${renderTeacherTable(data.submissions)}
+            </div>
+            <div class="panel span-12">
+              <h2>繳交進度檢查</h2>
+              <p class="muted">雲端檔案會依「學號_姓名」建立每位學生的獨立資料夾；各項作業會放在該學生資料夾底下，方便你直接到 Google 雲端硬碟檢查。</p>
+              ${renderProgress(data.progress || [])}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderVisitAdmin() {
+      const data = state.data.visitAdminData || {};
+      const summary = data.visitSummary || { total: 0, pending: 0, confirmed: 0, revise: 0 };
+      const students = data.students || [];
+      if (!state.data.visitAdminData) {
+        return '<section class="panel"><h2>訪視後台</h2><p class="muted">正在載入學生訪視回報...</p></section>';
+      }
+      return `
+        <section>
+          <div class="statbar">
+            <div class="stat"><span class="stat-number">${summary.total || 0}</span><span class="muted">訪視回報</span></div>
+            <div class="stat"><span class="stat-number">${summary.pending || 0}</span><span class="muted">待老師確認</span></div>
+            <div class="stat"><span class="stat-number">${summary.confirmed || 0}</span><span class="muted">已確認</span></div>
+            <div class="stat"><span class="stat-number">${summary.revise || 0}</span><span class="muted">請學生修改</span></div>
+          </div>
+          <div class="panel">
+            <h2>訪視回報核對</h2>
+            <p class="muted">學生送出的訪視日期、時間、地址與機構聯絡資料會集中在這裡。你可以在每列填老師備註，按「已確認」或「請學生修改」完成核對。</p>
+            <form id="visitFilter" class="row">
+              <div class="field">
+                <label for="visitFilterStudent">選擇學生</label>
+                <select id="visitFilterStudent" name="studentKey">
+                  <option value="">全部學生</option>
+                  ${students.map(student => `<option value="${escapeAttr(student.studentKey)}">${escapeHtml(student.studentName)}（${escapeHtml(student.studentId)}）</option>`).join('')}
+                </select>
+              </div>
+              <div class="field">
+                <label for="visitFilterQuery">搜尋機構、地址、聯絡人、狀態</label>
+                <input id="visitFilterQuery" name="query">
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button class="btn primary" type="submit">套用篩選</button>
+              </div>
+            </form>
+            ${renderTeacherVisits(data.visits || [])}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderTeacherTable(rows) {
+      const body = rows.length
+        ? rows.map(row => `
+          <tr>
+            <td>${escapeHtml(row.studentName)}<br><span class="muted">${escapeHtml(row.studentId)}<br>${escapeHtml(row.studentEmail)}</span></td>
+            <td>${escapeHtml(row.className || '')}<br><span class="muted">${escapeHtml(row.agency || '')}</span><br><span class="muted">機構督導：${escapeHtml(row.agencySupervisor || '')}</span></td>
+            <td>${escapeHtml(row.assignmentType)}${row.week ? `<br><span class="muted">第${escapeHtml(row.week)}週</span>` : ''}</td>
+            <td>${formatDate(row.timestamp)}<br><span class="muted">第${escapeHtml(row.attempt || 1)}次</span></td>
+            <td>${statusPill(row.status)}</td>
+            <td><a href="${escapeAttr(row.fileUrl)}" target="_blank" rel="noopener">開啟檔案</a></td>
+            <td>
+              <form class="reviewForm" data-id="${escapeAttr(row.submissionId)}">
+                <div class="review-controls">
+                  <input name="score" type="number" min="0" max="100" step="1" value="${escapeAttr(row.score || '')}" placeholder="分數">
+                  <textarea name="teacherComment" placeholder="退件原因或評語，退件時必填">${escapeHtml(row.teacherComment || '')}</textarea>
+                  <div class="review-actions">
+                    <button class="btn danger reviewAction" data-status="退件" type="button">退件給學生</button>
+                    <button class="btn primary reviewAction" data-status="已完成" type="button">勾選已完成</button>
+                    <button class="btn ghost reviewAction" data-status="已繳交" type="button">只儲存評語</button>
+                  </div>
+                </div>
+              </form>
+              <form class="reviewedFileForm" data-id="${escapeAttr(row.submissionId)}">
+                <div class="field">
+                  <label>回傳批改檔給學生</label>
+                  <input name="reviewedFile" type="file" accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.jpg,.jpeg,.png">
+                </div>
+                <div class="actions">
+                  <button class="btn ghost" type="submit">上傳並回傳給學生</button>
+                  ${row.reviewedFileUrl ? `<a href="${escapeAttr(row.reviewedFileUrl)}" target="_blank" rel="noopener">已回傳檔案</a>` : '<span class="muted">尚未回傳</span>'}
+                </div>
+              </form>
+            </td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="7" class="muted">沒有符合條件的資料。</td></tr>';
+
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>學生</th>
+                <th>班級／機構</th>
+                <th>作業</th>
+                <th>上傳</th>
+                <th>狀態</th>
+                <th>檔案</th>
+                <th>評語、退件與回傳</th>
+              </tr>
+            </thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderTeacherVisits(visits) {
+      const body = visits.length
+        ? visits.map(visit => {
+          const calendarUrl = buildCalendarUrl(visit);
+          return `
+            <tr>
+              <td>${escapeHtml(visit.studentName)}<br><span class="muted">${escapeHtml(visit.studentId)}<br>${escapeHtml(visit.studentEmail)}</span></td>
+              <td>${escapeHtml(visit.agency)}<br><span class="muted">${escapeHtml(visit.agencyAddress)}</span><br><span class="muted">機構督導：${escapeHtml(visit.agencySupervisor || '')}</span></td>
+              <td>${escapeHtml(visit.visitDate)}<br><span class="muted">${escapeHtml(visit.startTime)}-${escapeHtml(visit.endTime)}</span></td>
+              <td>${escapeHtml(visit.contactName || '')}<br><span class="muted">${escapeHtml(visit.contactPhone || '')}</span></td>
+              <td>${visitStatusPill(visit.status)}</td>
+              <td>
+                <div>${escapeHtml(visit.studentNote || '')}</div>
+                <div class="muted">${visit.teacherNote ? `老師備註：${escapeHtml(visit.teacherNote)}` : ''}</div>
+                <div class="actions">
+                  <a class="btn ghost" href="${escapeAttr(calendarUrl)}" target="_blank" rel="noopener">加入 Google 行事曆</a>
+                </div>
+              </td>
+              <td>
+                <form class="visitReviewForm" data-id="${escapeAttr(visit.visitId)}">
+                  <textarea name="teacherNote" placeholder="給學生或自己看的備註">${escapeHtml(visit.teacherNote || '')}</textarea>
+                  <div class="review-actions">
+                    <button class="btn primary visitAction" data-status="已確認" type="button">已確認</button>
+                    <button class="btn danger visitAction" data-status="請學生修改" type="button">請學生修改</button>
+                    <button class="btn ghost visitAction" data-status="待老師確認" type="button">待確認</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          `;
+        }).join('')
+        : '<tr><td colspan="7" class="muted">尚未有訪視安排回報。</td></tr>';
+
+      return `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>學生</th>
+                <th>機構與地址</th>
+                <th>訪視時間</th>
+                <th>聯絡人</th>
+                <th>狀態</th>
+                <th>備註與行事曆</th>
+                <th>老師確認</th>
+              </tr>
+            </thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderRosterAdmin() {
+      if (!state.data.rosterData) {
+        return '<section class="panel"><h2>名單管理</h2><p class="muted">正在載入學生名單...</p></section>';
+      }
+      const students = state.data.rosterData && state.data.rosterData.students
+        ? state.data.rosterData.students
+        : [];
+      return `
+        <section class="grid">
+          <form id="rosterForm" class="panel span-5">
+            <h2>匯入實習學生名單</h2>
+            <p class="muted">從 Excel 或試算表複製含標題列的學生名單，例如序號、學制、班級、學號、姓名、性別、實習機構、機構地址、領域、學校督導，貼到下方後匯入。</p>
+            <div class="field">
+              <label for="rosterText">貼上 Excel 名單</label>
+              <textarea id="rosterText" name="rosterText" placeholder="請從 Excel 複製 A:J 欄，包含標題列"></textarea>
+            </div>
+            <button class="btn primary" type="submit">匯入或更新名單</button>
+          </form>
+          <form id="newStudentForm" class="panel span-7">
+            <h2>新增學生</h2>
+            <p class="muted">臨時新增或補登學生時使用。學號與姓名必填，其餘資料可先留空，之後在下方名單中修改並儲存。</p>
+            <div class="row">
+              <div class="field">
+                <label for="newStudentId">學號</label>
+                <input id="newStudentId" name="studentId" required>
+              </div>
+              <div class="field">
+                <label for="newStudentName">姓名</label>
+                <input id="newStudentName" name="studentName" required>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="newClassName">班級</label>
+                <input id="newClassName" name="className">
+              </div>
+              <div class="field">
+                <label for="newStudentEmail">Google 帳號</label>
+                <input id="newStudentEmail" name="studentEmail" type="email">
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="newAgency">實習機構</label>
+                <input id="newAgency" name="agency">
+              </div>
+              <div class="field">
+                <label for="newAgencyAddress">機構地址</label>
+                <input id="newAgencyAddress" name="agencyAddress">
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="newField">領域</label>
+                <input id="newField" name="field">
+              </div>
+              <div class="field">
+                <label for="newSupervisor">學校督導</label>
+                <input id="newSupervisor" name="supervisor">
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="submit">新增學生</button>
+              <span class="muted" id="newStudentHint"></span>
+            </div>
+          </form>
+          <div class="panel span-12">
+            <h2>目前名單狀態</h2>
+            <p class="muted">已匯入${students.length}位學生。修改任一欄後請按該列「儲存」，出現「學生資料已更新」才算寫入完成。刪除只會移出名單，不會刪除學生已上傳的檔案或繳交紀錄。</p>
+            <div class="table-wrap">
+              <table class="roster-table">
+                <thead>
+                  <tr>
+                    <th>學號</th>
+                    <th>姓名</th>
+                    <th>班級</th>
+                    <th>機構</th>
+                    <th>機構地址</th>
+                    <th>領域</th>
+                    <th>學校督導</th>
+                    <th>Google 帳號</th>
+                    <th>狀態</th>
+                    <th>動作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${students.length ? students.map(student => `
+                    <tr data-student-key="${escapeAttr(student.studentKey)}">
+                      <td><input data-field="studentId" value="${escapeAttr(student.studentId)}"></td>
+                      <td><input data-field="studentName" value="${escapeAttr(student.studentName)}"></td>
+                      <td><input data-field="className" value="${escapeAttr(student.className || '')}"></td>
+                      <td><input data-field="agency" value="${escapeAttr(student.agency || '')}"></td>
+                      <td><input data-field="agencyAddress" value="${escapeAttr(student.agencyAddress || '')}"></td>
+                      <td><input data-field="field" value="${escapeAttr(student.field || '')}"></td>
+                      <td><input data-field="supervisor" value="${escapeAttr(student.supervisor || '')}"></td>
+                      <td><input data-field="studentEmail" type="email" value="${escapeAttr(student.studentEmail || '')}"></td>
+                      <td>${student.bindStatus === 'bound' ? '<span class="status done">已綁定</span>' : '<span class="status returned">未綁定</span>'}</td>
+                      <td>
+                        <div class="actions">
+                          <button class="btn ghost saveStudent" type="button">儲存</button>
+                          <button class="btn danger deleteStudent" type="button">刪除</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('') : '<tr><td colspan="10" class="muted">尚未匯入名單。</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    const STATUS_OPTIONS = ['已繳交', '退件', '已完成'];
+
+    function renderProgress(items) {
+      if (!items.length) return '<p class="muted">目前沒有學生進度資料。請先到名單管理確認學生名單。</p>';
+      return `
+        <div class="progress-legend">
+          <span class="status done">已完成</span>
+          <span class="status pending">已繳交待確認</span>
+          <span class="status returned">退件需補交</span>
+          <span class="status missing">未繳交</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>學生</th>
+                <th>應繳項目狀態</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>
+                    ${escapeHtml(item.studentName)}<br>
+                    <span class="muted">${escapeHtml(item.studentId)}${item.studentEmail ? `<br>${escapeHtml(item.studentEmail)}` : ''}</span>
+                    <div class="progress-summary">
+                      完成${escapeHtml(item.completedCount || 0)}，待確認${escapeHtml(item.submittedCount || 0)}，需補交${escapeHtml(item.needsResubmissionCount || 0)}（退件${escapeHtml(item.returnedCount || 0)}、未繳${escapeHtml(item.missingCount || 0)}）
+                    </div>
+                  </td>
+                  <td>
+                    <div class="progress-items">
+                      ${item.items.map(progress => `<span class="status ${progressStatusClass(progress.status)}" title="${escapeAttr(progress.status)}">${escapeHtml(progress.label)}</span>`).join('')}
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderAnnouncementAdmin() {
+      const edit = state.editingAnnouncement || {};
+      return `
+        <section class="grid">
+          <form id="announcementForm" class="panel span-5">
+            <h2>${edit.announcementId ? '編輯公告' : '新增公告'}</h2>
+            <input type="hidden" name="announcementId" value="${escapeAttr(edit.announcementId || '')}">
+            <div class="field">
+              <label for="annTitle">標題</label>
+              <input id="annTitle" name="title" value="${escapeAttr(edit.title || '')}" required>
+            </div>
+            <div class="field">
+              <label for="annBody">內容</label>
+              <textarea id="annBody" class="announcement-body-input" name="body" required>${escapeHtml(edit.body || '')}</textarea>
+            </div>
+            <div class="row">
+              <label class="checkbox-row">
+                <input type="checkbox" name="pinned" ${edit.pinned ? 'checked' : ''}>
+                置頂
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" name="visible" ${edit.visible !== false ? 'checked' : ''}>
+                顯示
+              </label>
+            </div>
+            <div class="field">
+              <label for="sortOrder">排序值</label>
+              <input id="sortOrder" name="sortOrder" type="number" value="${escapeAttr(edit.sortOrder || 0)}">
+              <div class="muted">數字越大越前面。置頂公告會優先顯示。</div>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="submit">儲存公告</button>
+              <button class="btn ghost" id="cancelAnnouncementEdit" type="button">清空表單</button>
+            </div>
+          </form>
+          <div class="panel span-7">
+            <h2>公告列表</h2>
+            ${state.data.announcements.map(item => `
+              <article class="notice ${item.visible ? '' : 'hidden'}">
+                <div class="notice-title">${item.pinned ? '置頂：' : ''}${escapeHtml(item.title)}</div>
+                <div class="notice-body">${escapeHtml(item.body || '')}</div>
+                <div class="actions">
+                  <button class="btn ghost editAnnouncement" data-id="${escapeAttr(item.announcementId)}" type="button">編輯</button>
+                  <button class="btn danger deleteAnnouncement" data-id="${escapeAttr(item.announcementId)}" type="button">刪除</button>
+                </div>
+              </article>
+            `).join('') || '<p class="muted">尚未建立公告。</p>'}
+          </div>
+        </section>
+      `;
+    }
+
+    function bindEvents() {
+      const assignmentType = document.getElementById('assignmentType');
+      if (assignmentType) {
+        assignmentType.addEventListener('change', toggleWeekField);
+        toggleWeekField();
+      }
+
+      const uploadForm = document.getElementById('uploadForm');
+      if (uploadForm) {
+        uploadForm.addEventListener('submit', handleUpload);
+        ['studentName', 'studentId', 'studentEmail', 'className', 'agency', 'agencySupervisor'].forEach(name => {
+          const input = uploadForm.elements[name];
+          if (input) input.addEventListener('change', () => saveUploadProfileMemory(uploadForm));
+        });
+      }
+
+      const visitForm = document.getElementById('visitForm');
+      if (visitForm) {
+        visitForm.addEventListener('submit', handleVisitSubmit);
+      }
+
+      const recoverIdentityForm = document.getElementById('recoverIdentityForm');
+      if (recoverIdentityForm) recoverIdentityForm.addEventListener('submit', handleRecoverIdentity);
+
+      document.querySelectorAll('.resubmit').forEach(button => {
+        button.addEventListener('click', event => {
+          state.currentTab = 'upload';
+          renderShell();
+          render();
+          setTimeout(() => {
+            const type = event.currentTarget.dataset.type;
+            const week = event.currentTarget.dataset.week;
+            document.getElementById('assignmentType').value = type;
+            toggleWeekField();
+            if (week) document.getElementById('week').value = week;
+          }, 0);
+        });
+      });
+
+      const teacherFilter = document.getElementById('teacherFilter');
+      if (teacherFilter) teacherFilter.addEventListener('submit', handleTeacherFilter);
+
+      const visitFilter = document.getElementById('visitFilter');
+      if (visitFilter) visitFilter.addEventListener('submit', handleTeacherFilter);
+
+      document.querySelectorAll('.reviewForm').forEach(form => {
+        form.addEventListener('submit', handleReview);
+      });
+
+      document.querySelectorAll('.reviewAction').forEach(button => {
+        button.addEventListener('click', handleReviewAction);
+      });
+
+      document.querySelectorAll('.reviewedFileForm').forEach(form => {
+        form.addEventListener('submit', handleReviewedFileUpload);
+      });
+
+      document.querySelectorAll('.visitAction').forEach(button => {
+        button.addEventListener('click', handleVisitAction);
+      });
+
+      const rosterForm = document.getElementById('rosterForm');
+      if (rosterForm) rosterForm.addEventListener('submit', handleRosterImport);
+
+      const newStudentForm = document.getElementById('newStudentForm');
+      if (newStudentForm) newStudentForm.addEventListener('submit', handleStudentCreate);
+
+      document.querySelectorAll('.saveStudent').forEach(button => {
+        button.addEventListener('click', handleStudentSave);
+      });
+
+      document.querySelectorAll('.deleteStudent').forEach(button => {
+        button.addEventListener('click', handleStudentDelete);
+      });
+
+      const announcementForm = document.getElementById('announcementForm');
+      if (announcementForm) announcementForm.addEventListener('submit', handleAnnouncementSave);
+
+      const cancelAnnouncementEdit = document.getElementById('cancelAnnouncementEdit');
+      if (cancelAnnouncementEdit) {
+        cancelAnnouncementEdit.addEventListener('click', () => {
+          state.editingAnnouncement = null;
+          render();
+        });
+      }
+
+      document.querySelectorAll('.editAnnouncement').forEach(button => {
+        button.addEventListener('click', event => {
+          const id = event.currentTarget.dataset.id;
+          state.editingAnnouncement = state.data.announcements.find(item => item.announcementId === id);
+          render();
+        });
+      });
+
+      document.querySelectorAll('.deleteAnnouncement').forEach(button => {
+        button.addEventListener('click', event => {
+          if (!confirm('確定要刪除這則公告嗎？')) return;
+          callServer('deleteAnnouncement', event.currentTarget.dataset.id, result => {
+            state.data.announcements = result.announcements;
+            showSuccess('公告已刪除。');
+            render();
+          });
+        });
+      });
+    }
+
+    function handleRecoverIdentity(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const hint = document.getElementById('recoverHint');
+      const payload = {
+        studentName: form.studentName.value,
+        studentId: form.studentId.value,
+        studentEmail: form.studentEmail.value
+      };
+      if (hint) hint.textContent = '正在重新辨識身分並讀取紀錄';
+      callServer('recoverMyIdentity', payload, result => {
+        state.data.myStudent = result.myStudent || state.data.myStudent;
+        state.data.mySubmissions = result.mySubmissions || [];
+        state.data.myVisits = result.myVisits || [];
+        state.loaded.mySubmissions = true;
+        state.loaded.myVisits = true;
+        saveUploadProfileMemory(form);
+        showSuccess(result.message || '已重新辨識並讀取紀錄。');
+        showToast(result.message || '已重新辨識並讀取紀錄。');
+        if (hint) hint.textContent = '';
+        renderShell();
+        render();
+      }, () => {
+        if (hint) hint.textContent = '';
+      });
+    }
+
+    function toggleWeekField() {
+      const type = document.getElementById('assignmentType').value;
+      const weekField = document.getElementById('weekField');
+      const selected = state.data.assignments.find(item => item.type === type);
+      weekField.style.display = selected && selected.requiresWeek ? 'grid' : 'none';
+    }
+
+    function getUploadProfileMemory() {
+      try {
+        return JSON.parse(localStorage.getItem(uploadMemoryKey) || '{}') || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveUploadProfileMemory(form) {
+      if (!form) return;
+      const profile = {};
+      ['studentName', 'studentId', 'studentEmail', 'className', 'agency', 'agencySupervisor'].forEach(name => {
+        if (form.elements[name]) profile[name] = form.elements[name].value || '';
+      });
+      try {
+        localStorage.setItem(uploadMemoryKey, JSON.stringify(profile));
+      } catch (error) {
+        // 瀏覽器若停用本機儲存，仍可正常上傳，只是不記憶欄位。
+      }
+    }
+
+    function handleUpload(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const file = form.file.files[0];
+      if (!file) return showError('請選擇檔案。');
+      if (file.size > 25 * 1024 * 1024) return showError('檔案超過25MB，請壓縮後再上傳。');
+
+      saveUploadProfileMemory(form);
+      document.getElementById('uploadHint').textContent = '正在讀取檔案並上傳';
+      const reader = new FileReader();
+      reader.onload = () => {
+        const payload = {
+          studentName: form.studentName.value,
+          studentId: form.studentId.value,
+          studentEmail: form.studentEmail.value,
+          className: form.className.value,
+          agency: form.agency.value,
+          agencySupervisor: form.agencySupervisor.value,
+          assignmentType: form.assignmentType.value,
+          week: form.week.value,
+          fileName: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          fileData: String(reader.result).split(',')[1]
+        };
+
+        callServer('uploadSubmission', payload, result => {
+          state.data.mySubmissions = [result.submission].concat(state.data.mySubmissions || []);
+          state.loaded.mySubmissions = false;
+          showSuccess(result.message || '上傳完成。');
+          form.reset();
+          toggleWeekField();
+          document.getElementById('uploadHint').textContent = '';
+          render();
+          loadMySubmissionsIfNeeded();
+        }, () => {
+          document.getElementById('uploadHint').textContent = '';
+        });
+      };
+      reader.onerror = () => {
+        document.getElementById('uploadHint').textContent = '';
+        showError('檔案讀取失敗，請重新選擇檔案。');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleVisitSubmit(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const hint = document.getElementById('visitHint');
+      const payload = {
+        studentName: form.studentName.value,
+        studentId: form.studentId.value,
+        studentEmail: form.studentEmail.value,
+        className: form.className.value,
+        agency: form.agency.value,
+        agencyAddress: form.agencyAddress.value,
+        agencySupervisor: form.agencySupervisor.value,
+        visitDate: form.visitDate.value,
+        startTime: form.startTime.value,
+        endTime: form.endTime.value,
+        contactName: form.contactName.value,
+        contactPhone: form.contactPhone.value,
+        studentNote: form.studentNote.value
+      };
+      if (payload.startTime && payload.endTime && payload.startTime >= payload.endTime) {
+        return showError('結束時間必須晚於開始時間。');
+      }
+      if (hint) hint.textContent = '正在送出訪視安排';
+      callServer('submitVisitPlan', payload, result => {
+        state.data.myVisits = result.myVisits || [];
+        state.loaded.myVisits = true;
+        showSuccess(result.message || '訪視時間已送出。');
+        showToast(result.message || '訪視時間已送出。');
+        if (hint) hint.textContent = '';
+        render();
+      }, () => {
+        if (hint) hint.textContent = '';
+      });
+    }
+
+    function handleTeacherFilter(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const filters = {
+        studentKey: form.studentKey ? form.studentKey.value : '',
+        query: form.query ? form.query.value : '',
+        assignmentType: form.assignmentType ? form.assignmentType.value : '',
+        status: form.status ? form.status.value : ''
+      };
+      const isVisitFilter = form.id === 'visitFilter';
+      callServer(isVisitFilter ? 'getVisitAdminData' : 'getTeacherSubmissionData', filters, result => {
+        if (isVisitFilter) {
+          state.data.visitAdminData = result;
+          state.loaded.visitAdminData = true;
+        } else {
+          state.data.teacherData = result;
+          state.loaded.teacherData = true;
+        }
+        render();
+      });
+    }
+
+    function handleVisitAction(event) {
+      const button = event.currentTarget;
+      const form = button.closest('.visitReviewForm');
+      if (!form) return;
+      const originalButtonText = button.textContent;
+      const payload = {
+        visitId: form.dataset.id,
+        status: button.dataset.status || '待老師確認',
+        teacherNote: form.teacherNote.value
+      };
+      button.disabled = true;
+      button.textContent = '處理中...';
+      callServer('updateVisitStatus', payload, result => {
+        state.data.visitAdminData = result.visitAdminData;
+        state.loaded.visitAdminData = true;
+        const message = result.message || '訪視安排已更新。';
+        showSuccess(message);
+        showToast(message);
+        render();
+      }, () => {
+        button.disabled = false;
+        button.textContent = originalButtonText;
+      }, true);
+    }
+
+    function handleReview(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      submitReview(form, '已繳交');
+    }
+
+    function handleReviewAction(event) {
+      const button = event.currentTarget;
+      const form = button.closest('.reviewForm');
+      submitReview(form, button.dataset.status || '已繳交', button);
+    }
+
+    function submitReview(form, status, button) {
+      if (!form) return;
+      if (status === '退件' && !form.teacherComment.value.trim()) {
+        return showError('退件前請先填寫退件原因或評語。');
+      }
+      const payload = {
+        submissionId: form.dataset.id,
+        status,
+        score: form.score.value,
+        teacherComment: form.teacherComment.value
+      };
+      const originalButtonText = button ? button.textContent : '';
+      if (button) {
+        button.disabled = true;
+        button.textContent = '處理中...';
+      }
+      showSuccess(status === '退件' ? '正在退件並寄出 Email 通知...' : '正在更新狀態...');
+      callServer('updateReview', payload, result => {
+        state.data.teacherData = result.teacherData;
+        state.loaded.teacherData = true;
+        const message = result.message || '已更新。';
+        showSuccess(message);
+        showToast(message);
+        render();
+      }, () => {
+        if (button) {
+          button.disabled = false;
+          button.textContent = originalButtonText;
+        }
+      }, true);
+    }
+
+    function handleReviewedFileUpload(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const file = form.reviewedFile.files[0];
+      if (!file) return showError('請先選擇要回傳給學生的檔案。');
+      if (file.size > 25 * 1024 * 1024) return showError('檔案超過25MB，請壓縮後再上傳。');
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const payload = {
+          submissionId: form.dataset.id,
+          fileName: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          fileData: String(reader.result).split(',')[1]
+        };
+        callServer('uploadReviewedFile', payload, result => {
+          state.data.teacherData = result.teacherData;
+          state.loaded.teacherData = true;
+          showSuccess(result.message || '回傳檔案已上傳。');
+          render();
+        });
+      };
+      reader.onerror = () => showError('檔案讀取失敗，請重新選擇檔案。');
+      reader.readAsDataURL(file);
+    }
+
+    function handleRosterImport(event) {
+      event.preventDefault();
+      const text = event.currentTarget.rosterText.value;
+      callServer('importRosterText', text, result => {
+        state.data.rosterData = result.rosterData;
+        state.loaded.rosterData = true;
+        invalidateTeacherDerivedData();
+        showSuccess(result.message || '名單已匯入。');
+        showToast(result.message || '名單已匯入。');
+        render();
+      });
+    }
+
+    function handleStudentCreate(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const hint = document.getElementById('newStudentHint');
+      const payload = {
+        studentId: form.studentId.value,
+        studentName: form.studentName.value,
+        className: form.className.value,
+        studentEmail: form.studentEmail.value,
+        agency: form.agency.value,
+        agencyAddress: form.agencyAddress.value,
+        field: form.field.value,
+        supervisor: form.supervisor.value
+      };
+      if (hint) hint.textContent = '正在新增學生';
+      callServer('createStudentRecord', payload, result => {
+        state.data.rosterData = result.rosterData;
+        state.loaded.rosterData = true;
+        invalidateTeacherDerivedData();
+        const message = result.message || '學生已新增。';
+        showSuccess(message);
+        showToast(message);
+        form.reset();
+        if (hint) hint.textContent = '';
+        render();
+      }, () => {
+        if (hint) hint.textContent = '';
+      });
+    }
+
+    function handleStudentSave(event) {
+      const button = event.currentTarget;
+      const row = button.closest('tr');
+      const payload = {
+        studentKey: row.dataset.studentKey
+      };
+      row.querySelectorAll('[data-field]').forEach(input => {
+        payload[input.dataset.field] = input.value;
+      });
+      const originalButtonText = button.textContent;
+      button.disabled = true;
+      button.textContent = '儲存中...';
+      callServer('updateStudentRecord', payload, result => {
+        state.data.rosterData = result.rosterData;
+        state.loaded.rosterData = true;
+        invalidateTeacherDerivedData();
+        const message = result.message || '學生資料已更新。';
+        showSuccess(message);
+        showToast(message);
+        render();
+      }, () => {
+        button.disabled = false;
+        button.textContent = originalButtonText;
+      });
+    }
+
+    function handleStudentDelete(event) {
+      const button = event.currentTarget;
+      const row = button.closest('tr');
+      const studentNameInput = row.querySelector('[data-field="studentName"]');
+      const studentIdInput = row.querySelector('[data-field="studentId"]');
+      const label = `${studentNameInput ? studentNameInput.value : ''} ${studentIdInput ? studentIdInput.value : ''}`.trim();
+      if (!confirm(`確定要從名單刪除「${label || '這位學生'}」嗎？\n\n這只會移出名單，不會刪除已上傳檔案或繳交紀錄。`)) return;
+      const originalButtonText = button.textContent;
+      button.disabled = true;
+      button.textContent = '刪除中...';
+      callServer('deleteStudentRecord', row.dataset.studentKey, result => {
+        state.data.rosterData = result.rosterData;
+        state.loaded.rosterData = true;
+        invalidateTeacherDerivedData();
+        const message = result.message || '學生已刪除。';
+        showSuccess(message);
+        showToast(message);
+        render();
+      }, () => {
+        button.disabled = false;
+        button.textContent = originalButtonText;
+      });
+    }
+
+    function handleAnnouncementSave(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = {
+        announcementId: form.announcementId.value,
+        title: form.title.value,
+        body: form.body.value,
+        pinned: form.pinned.checked,
+        visible: form.visible.checked,
+        sortOrder: form.sortOrder.value
+      };
+      callServer('saveAnnouncement', payload, result => {
+        state.data.announcements = result.announcements;
+        state.editingAnnouncement = null;
+        showSuccess('公告已儲存。');
+        render();
+      });
+    }
+
+    function callServer(method, payload, onSuccess, onFinally, keepMessage) {
+      if (!keepMessage) clearMessage();
+      google.script.run
+        .withSuccessHandler(result => {
+          if (onFinally) onFinally();
+          onSuccess(result);
+        })
+        .withFailureHandler(error => {
+          if (onFinally) onFinally();
+          showError(error.message || String(error));
+        })[method](payload);
+    }
+
+    function statusPill(status) {
+      const cls = status === '退件' ? 'returned' : status === '已完成' ? 'done' : 'pending';
+      return `<span class="status ${cls}">${escapeHtml(status || '已繳交')}</span>`;
+    }
+
+    function visitStatusPill(status) {
+      const cls = status === '已確認' ? 'done' : status === '請學生修改' ? 'returned' : 'pending';
+      return `<span class="status ${cls}">${escapeHtml(status || '待老師確認')}</span>`;
+    }
+
+    function progressStatusClass(status) {
+      if (status === '已完成') return 'done';
+      if (status === '退件') return 'returned';
+      if (status === '未繳交') return 'missing';
+      return 'pending';
+    }
+
+    function buildCalendarUrl(visit) {
+      const dates = `${calendarDateTime(visit.visitDate, visit.startTime)}/${calendarDateTime(visit.visitDate, visit.endTime)}`;
+      const text = `實習訪視：${visit.studentName || ''}`;
+      const details = [
+        `學生：${visit.studentName || ''} ${visit.studentId || ''}`,
+        `機構：${visit.agency || ''}`,
+        `機構督導：${visit.agencySupervisor || ''}`,
+        `聯絡人：${visit.contactName || ''}`,
+        `電話：${visit.contactPhone || ''}`,
+        `學生備註：${visit.studentNote || ''}`
+      ].join('\n');
+      const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text,
+        dates,
+        location: visit.agencyAddress || '',
+        details
+      });
+      return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    }
+
+    function calendarDateTime(dateText, timeText) {
+      const date = String(dateText || '').replace(/-/g, '');
+      const time = String(timeText || '00:00').replace(':', '').padEnd(4, '0');
+      return `${date}T${time}00`;
+    }
+
+    function formatDate(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return escapeHtml(String(value));
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function showError(text) {
+      const message = document.getElementById('message');
+      message.className = 'message show error';
+      message.textContent = text;
+    }
+
+    function showSuccess(text) {
+      const message = document.getElementById('message');
+      message.className = 'message show success';
+      message.textContent = text;
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = text;
+      toast.className = 'toast show';
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.className = 'toast';
+      }, 3200);
+    }
+
+    function clearMessage() {
+      const message = document.getElementById('message');
+      message.className = 'message';
+      message.textContent = '';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+  </script>
+</body>
+</html>
