@@ -518,7 +518,7 @@ function updateReview(payload) {
       sendReturnNotification_(rowObject, teacherComment);
       message = '退件完成，已寄出 Email 通知學生。';
     } catch (error) {
-      message = `退件完成，但 Email 通知寄送失敗：${error.message || error}`;
+      message = `退件完成，但 Apps Script 自動寄信失敗：${error.message || error}。請在老師後台該筆退件旁點「用 Gmail 通知學生」手動寄出。`;
     }
   } else if (payload.status === '已完成') {
     message = '確認完成。';
@@ -568,6 +568,38 @@ function authorizeEmailSending() {
   return {
     remainingDailyQuota: MailApp.getRemainingDailyQuota(),
     message: 'Email 寄送權限已授權。'
+  };
+}
+
+function testEmailNotification() {
+  assertTeacher_();
+  const recipient = getCurrentUserEmail_() || PRECONFIGURED.TEACHER_EMAILS.split(',')[0];
+  if (!recipient) {
+    throw new Error('無法取得測試收件者 Email，請確認老師帳號已登入。');
+  }
+  const quota = MailApp.getRemainingDailyQuota();
+  if (quota <= 0) {
+    throw new Error('今天的 Apps Script 寄信配額已用完，請明天再試。');
+  }
+
+  MailApp.sendEmail({
+    to: recipient,
+    subject: '[實習系統測試信] Email 通知功能檢查',
+    body: [
+      '這是一封實習作業上傳與評分系統的測試信。',
+      '',
+      '如果您收到這封信，代表 Apps Script 的 Email 寄送授權與配額目前可用。',
+      '',
+      `系統網址：${WEB_APP_URL}`,
+      `剩餘寄信配額：${quota - 1}`
+    ].join('\n'),
+    name: getCourseTitle_()
+  });
+
+  return {
+    ok: true,
+    message: `測試信已寄出到 ${recipient}。若收件匣沒有看到，請檢查垃圾郵件或促銷分類。`,
+    remainingDailyQuota: quota - 1
   };
 }
 

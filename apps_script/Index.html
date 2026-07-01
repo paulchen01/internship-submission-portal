@@ -713,10 +713,11 @@
         visitAdminData: false,
         rosterData: false
       },
-      version: 'v31'
+      version: 'v33'
     };
 
     const uploadMemoryKey = 'internshipUploadProfile:v1';
+    const webAppUrl = '';
 
     const tabList = [
       { id: 'announcements', label: '公佈欄' },
@@ -1396,6 +1397,14 @@
             <div class="stat"><span class="stat-number">${data.summary.returned}</span><span class="muted">退件中</span></div>
             <div class="stat"><span class="stat-number">${data.summary.completed}</span><span class="muted">已完成</span></div>
           </div>
+          <div class="panel">
+            <h2>Email 通知檢查</h2>
+            <p class="muted">退件通知會透過 Apps Script 自動寄出。若學生沒有收到退件信，請先按這個按鈕測試寄信授權與配額。</p>
+            <div class="actions">
+              <button class="btn ghost" id="testEmailNotification" type="button">寄測試信給老師</button>
+              <span class="muted" id="emailTestHint"></span>
+            </div>
+          </div>
           <div class="grid">
             <div class="panel span-12">
               <h2>收件與評分</h2>
@@ -1504,6 +1513,7 @@
                     <button class="btn danger reviewAction" data-status="退件" type="button">退件給學生</button>
                     <button class="btn primary reviewAction" data-status="已完成" type="button">勾選已完成</button>
                     <button class="btn ghost reviewAction" data-status="已繳交" type="button">只儲存評語</button>
+                    ${row.status === '退件' && row.studentEmail ? `<a class="btn ghost" href="${escapeAttr(buildGmailReturnUrl(row))}" target="_blank" rel="noopener">用 Gmail 通知學生</a>` : ''}
                   </div>
                 </div>
               </form>
@@ -1844,6 +1854,9 @@
       const teacherFilter = document.getElementById('teacherFilter');
       if (teacherFilter) teacherFilter.addEventListener('submit', handleTeacherFilter);
 
+      const testEmailButton = document.getElementById('testEmailNotification');
+      if (testEmailButton) testEmailButton.addEventListener('click', handleTestEmailNotification);
+
       const visitFilter = document.getElementById('visitFilter');
       if (visitFilter) visitFilter.addEventListener('submit', handleTeacherFilter);
 
@@ -2063,6 +2076,24 @@
         }
         render();
       });
+    }
+
+    function handleTestEmailNotification(event) {
+      const button = event.currentTarget;
+      const hint = document.getElementById('emailTestHint');
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = '寄送中...';
+      if (hint) hint.textContent = '正在寄出測試信';
+      callServer('testEmailNotification', null, result => {
+        const message = result.message || '測試信已寄出。';
+        showSuccess(message);
+        showToast(message);
+        if (hint) hint.textContent = `剩餘配額：${result.remainingDailyQuota ?? '未提供'}`;
+      }, () => {
+        button.disabled = false;
+        button.textContent = originalText;
+      }, true);
     }
 
     function handleVisitAction(event) {
@@ -2321,6 +2352,33 @@
         details
       });
       return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    }
+
+    function buildGmailReturnUrl(row) {
+      const weekText = row.week ? `第${row.week}週` : '';
+      const assignmentText = [row.assignmentType || '實習作業', weekText].filter(Boolean).join(' ');
+      const subject = `[實習作業退件通知] ${assignmentText}`;
+      const body = [
+        `${row.studentName || '同學'}您好：`,
+        '',
+        `您上傳的「${assignmentText}」已由老師退件。`,
+        '',
+        '退件原因／老師評語：',
+        row.teacherComment || '請依老師於系統中的評語修正。',
+        '',
+        '請依照評語修正後，登入系統重新上傳修正版。',
+        webAppUrl,
+        '',
+        '實習指導老師'
+      ].join('\n');
+      const params = new URLSearchParams({
+        view: 'cm',
+        fs: '1',
+        to: row.studentEmail || '',
+        su: subject,
+        body
+      });
+      return `https://mail.google.com/mail/?${params.toString()}`;
     }
 
     function calendarDateTime(dateText, timeText) {
